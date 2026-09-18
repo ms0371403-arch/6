@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📺 班級投影展示模式 - 🚗《你適合當汽車業務嗎？》</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      padding: 24px;
+    }
+    .teacher-container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: var(--bg-card);
+      border: 2px solid var(--accent-orange);
+      border-radius: var(--radius-lg);
+      padding: 36px 28px;
+      text-align: center;
+      box-shadow: var(--shadow-glow);
+    }
+    .qr-box {
+      background: white;
+      padding: 20px;
+      border-radius: var(--radius-md);
+      display: inline-block;
+      margin: 20px 0;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+    .qr-box img {
+      width: 280px;
+      height: 280px;
+      display: block;
+    }
+    .url-display {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--accent-gold);
+      background: var(--bg-primary);
+      padding: 12px 20px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      display: inline-block;
+      margin: 12px 0 24px 0;
+      word-break: break-all;
+    }
+    .custom-url-input {
+      width: 100%;
+      max-width: 500px;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      background: var(--bg-primary);
+      color: var(--text-main);
+      font-size: 1rem;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    .instruction-list {
+      text-align: left;
+      max-width: 600px;
+      margin: 0 auto 28px auto;
+      background: var(--bg-primary);
+      padding: 20px 24px;
+      border-radius: var(--radius-md);
+      border-left: 4px solid var(--accent-blue);
+    }
+    .instruction-list li {
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: var(--text-sub);
+      margin-bottom: 8px;
+    }
+    .instruction-list li:last-child {
+      margin-bottom: 0;
+    }
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn-secondary {
+      background: var(--bg-primary);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 12px 24px;
+      border-radius: var(--radius-md);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-secondary:hover {
+      border-color: var(--accent-orange);
+      color: var(--accent-orange);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="teacher-container">
+    <div class="car-badge">📺 班級實戰投影模式</div>
+    <h1 class="main-title">🚗《你適合當汽車業務嗎？》</h1>
+    <div class="sub-title">請學生拿出手機掃描下方 QR Code 開始測驗</div>
+
+    <!-- QR Code 圖片區域 -->
+    <div class="qr-box">
+      <img id="qr-img" src="" alt="QR Code 載入中...">
+    </div>
+
+    <div>
+      <div id="url-text" class="url-display">載入網址中...</div>
+    </div>
+
+    <!-- 手動更換網址輸入框 -->
+    <div>
+      <input type="text" id="input-url" class="custom-url-input" placeholder="可輸入自訂網址（如 GitHub Pages / 部署網址）">
+      <button id="btn-update-qr" class="btn-secondary" style="padding: 10px 18px;">更新 QR Code 🔄</button>
+    </div>
+
+    <div class="instruction-list">
+      <ol>
+        <li><strong>步驟一：</strong>將本頁面投影至教室大螢幕。</li>
+        <li><strong>步驟二：</strong>學生連線至教室 Wi-Fi，打開手機相機或 LINE 掃描 QR Code。</li>
+        <li><strong>步驟三：</strong>學生開啟網頁後即可直接開始 24 題實戰測驗，免登入免帳號！</li>
+      </ol>
+    </div>
+
+    <div class="btn-group">
+      <button id="btn-open-game" class="btn-primary" style="width: auto; padding: 14px 28px;">進入電腦版遊戲 🎮</button>
+      <button id="btn-copy-link" class="btn-secondary">複製手機網址 📋</button>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const qrImg = document.getElementById('qr-img');
+      const urlText = document.getElementById('url-text');
+      const inputUrl = document.getElementById('input-url');
+      const btnUpdateQr = document.getElementById('btn-update-qr');
+      const btnOpenGame = document.getElementById('btn-open-game');
+      const btnCopyLink = document.getElementById('btn-copy-link');
+
+      // 從 URL 參數讀取網址 (e.g., ?url=http://192.168.1.100:8080/index.html)
+      const urlParams = new URLSearchParams(window.location.search);
+      let targetUrl = urlParams.get('url');
+
+      if (!targetUrl) {
+        // 預設為目前同目錄下的 index.html
+        targetUrl = window.location.href.replace('teacher.html', 'index.html');
+      }
+
+      updateQRCode(targetUrl);
+
+      btnUpdateQr.addEventListener('click', () => {
+        const customUrl = inputUrl.value.trim();
+        if (customUrl) {
+          updateQRCode(customUrl);
+        }
+      });
+
+      btnOpenGame.addEventListener('click', () => {
+        window.location.href = 'index.html';
+      });
+
+      btnCopyLink.addEventListener('click', () => {
+        const currentTarget = urlText.textContent;
+        navigator.clipboard.writeText(currentTarget).then(() => {
+          alert('✅ 已複製手機網址到剪貼簿：\n' + currentTarget);
+        }).catch(err => {
+          alert('網址為：' + currentTarget);
+        });
+      });
+
+      function updateQRCode(url) {
+        urlText.textContent = url;
+        inputUrl.value = url;
+        
+        // 使用高效高解析度的 QR Code API 生成 QR 圖檔
+        const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}`;
+        qrImg.src = qrApiUrl;
+      }
+    });
+  </script>
+</body>
+</html>
